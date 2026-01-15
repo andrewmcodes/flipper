@@ -127,7 +127,7 @@ RSpec.describe Flipper::Adapters::Sync::Synchronizer do
   end
 
   context 'with ActorLimit adapter wrapping local' do
-    let(:limit) { 5 }
+    let(:limit) { 10 }
     let(:limited_local) { Flipper::Adapters::ActorLimit.new(local, limit) }
     let(:limited_local_flipper) { Flipper.new(limited_local) }
 
@@ -135,13 +135,41 @@ RSpec.describe Flipper::Adapters::Sync::Synchronizer do
 
     it 'syncs actors even when remote has more actors than local limit' do
       # Remote has more actors than local limit allows
-      10.times { |i| remote_flipper[:search].enable_actor Flipper::Actor.new("User;#{i}") }
+      20.times { |i| remote_flipper[:search].enable_actor Flipper::Actor.new("User;#{i}") }
 
       # This should NOT raise - sync should bypass actor limits
       expect { subject.call }.not_to raise_error
 
       # All actors should be synced
-      expect(limited_local_flipper[:search].actors_value.size).to eq(10)
+      expect(limited_local_flipper[:search].actors_value.size).to eq(20)
+    end
+
+    it 'syncs new actors added to remote after initial sync' do
+      # Initial state: remote has 20 actors, local limit is 10
+      20.times { |i| remote_flipper[:search].enable_actor Flipper::Actor.new("User;#{i}") }
+
+      # First sync - should work despite exceeding limit
+      subject.call
+      expect(limited_local_flipper[:search].actors_value.size).to eq(20)
+
+      # Add a 21st actor to remote (simulating Cloud adding a new actor)
+      remote_flipper[:search].enable_actor Flipper::Actor.new("User;20")
+
+      # Sync again - should pick up the new actor
+      expect { subject.call }.not_to raise_error
+      expect(limited_local_flipper[:search].actors_value.size).to eq(21)
+      expect(limited_local_flipper[:search].actors_value).to include("User;20")
+    end
+
+    it 'still enforces limit for direct enable operations' do
+      # First sync 20 actors from remote
+      20.times { |i| remote_flipper[:search].enable_actor Flipper::Actor.new("User;#{i}") }
+      subject.call
+
+      # Direct enable should still fail because we're over limit
+      expect {
+        limited_local_flipper[:search].enable_actor Flipper::Actor.new("User;new")
+      }.to raise_error(Flipper::Adapters::ActorLimit::LimitExceeded)
     end
   end
 end
