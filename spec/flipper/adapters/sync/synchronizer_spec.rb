@@ -1,4 +1,5 @@
 require "flipper/adapters/memory"
+require "flipper/adapters/actor_limit"
 require "flipper/instrumenters/memory"
 require "flipper/adapters/sync/synchronizer"
 
@@ -122,6 +123,25 @@ RSpec.describe Flipper::Adapters::Sync::Synchronizer do
 
       feature_names = remove_events.map { |e| e.payload[:feature_name].to_s }
       expect(feature_names).to include("old_feature")
+    end
+  end
+
+  context 'with ActorLimit adapter wrapping local' do
+    let(:limit) { 5 }
+    let(:limited_local) { Flipper::Adapters::ActorLimit.new(local, limit) }
+    let(:limited_local_flipper) { Flipper.new(limited_local) }
+
+    subject { described_class.new(limited_local, remote, instrumenter: instrumenter) }
+
+    it 'syncs actors even when remote has more actors than local limit' do
+      # Remote has more actors than local limit allows
+      10.times { |i| remote_flipper[:search].enable_actor Flipper::Actor.new("User;#{i}") }
+
+      # This should NOT raise - sync should bypass actor limits
+      expect { subject.call }.not_to raise_error
+
+      # All actors should be synced
+      expect(limited_local_flipper[:search].actors_value.size).to eq(10)
     end
   end
 end
