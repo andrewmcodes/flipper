@@ -32,10 +32,12 @@ RSpec.describe Flipper::UI::Actions::Features do
       flipper.add("../../../../blah")
       flipper.add("this that")
       flipper.add("foo/bar")
+      flipper.add("can_do_stuff?")
       get '/features'
       expect(last_response.body).to include("..%2F..%2F..%2F..%2Fblah")
       expect(last_response.body).to include("this+that")
       expect(last_response.body).to include("foo%2Fbar")
+      expect(last_response.body).to include("can_do_stuff%3F")
     end
 
     context "when there are no features to list" do
@@ -167,6 +169,19 @@ RSpec.describe Flipper::UI::Actions::Features do
         it 'redirects to feature' do
           expect(last_response.status).to be(302)
           expect(last_response.headers['location']).to eq('/features/..%2F..%2F..%2Ffoo')
+        end
+      end
+
+      context 'feature name contains question mark' do
+        let(:feature_name) { 'can_do_stuff?' }
+
+        it 'adds feature with question mark' do
+          expect(flipper.features.map(&:key)).to include('can_do_stuff?')
+        end
+
+        it 'redirects to feature with encoded question mark' do
+          expect(last_response.status).to be(302)
+          expect(last_response.headers['location']).to eq('/features/can_do_stuff%3F')
         end
       end
 

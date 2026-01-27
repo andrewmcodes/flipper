@@ -211,4 +211,18 @@ RSpec.describe Flipper::UI::Actions::Feature do
       expect(last_response.body).to include('../../../../blah')
     end
   end
+
+  describe 'GET /features/:feature with question mark in feature name' do
+    before do
+      get '/features/can_do_stuff%3F'
+    end
+
+    it 'responds with success' do
+      expect(last_response.status).to be(200)
+    end
+
+    it 'renders template with question mark in feature name' do
+      expect(last_response.body).to include('can_do_stuff?')
+    end
+  end
 end
