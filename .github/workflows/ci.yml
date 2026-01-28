@@ -5,6 +5,7 @@ jobs:
   test:
     name: Test on ruby ${{ matrix.ruby }} and rails ${{ matrix.rails }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       redis:
         image: redis
