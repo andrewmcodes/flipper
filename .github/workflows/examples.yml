@@ -5,6 +5,7 @@ jobs:
     if: github.repository_owner == 'flippercloud'
     name: Example on ruby ${{ matrix.ruby }} and rails ${{ matrix.rails }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       redis:
         image: redis
