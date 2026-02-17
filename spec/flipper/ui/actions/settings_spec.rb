@@ -23,5 +23,13 @@ RSpec.describe Flipper::UI::Actions::Settings do
     it 'renders template' do
       expect(last_response.body).to include('Download')
     end
+
+    it 'includes migrate to Flipper Cloud card' do
+      expect(last_response.body).to include('Migrate to Flipper Cloud')
+    end
+
+    it 'shows feature count' do
+      expect(last_response.body).to include('features ready to migrate')
+    end
   end
 end
