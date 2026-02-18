@@ -1,5 +1,6 @@
 require "json"
 require "flipper/adapters/http/client"
+require "flipper/typecast"
 
 module Flipper
   module Cloud
@@ -21,7 +22,7 @@ module Flipper
       }
 
       client = build_client("/api")
-      response = client.post("/migrate", JSON.generate(payload))
+      response = client.post("/migrate", Typecast.to_gzip(JSON.generate(payload)))
       body = JSON.parse(response.body) rescue {}
 
       MigrateResult.new(
@@ -43,7 +44,7 @@ module Flipper
       client = build_client("/adapter", headers: {
         "flipper-cloud-token" => token,
       })
-      response = client.post("/import", export.contents)
+      response = client.post("/import", Typecast.to_gzip(export.contents))
       body = JSON.parse(response.body) rescue {}
 
       MigrateResult.new(
@@ -59,7 +60,7 @@ module Flipper
 
       Flipper::Adapters::Http::Client.new(
         url: "#{base_url}#{path}",
-        headers: headers,
+        headers: {"content-encoding" => "gzip"}.merge(headers),
         open_timeout: 5,
         read_timeout: 30,
         write_timeout: 30,

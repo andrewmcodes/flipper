@@ -1,4 +1,5 @@
 require "flipper/cloud/migrate"
+require "flipper/typecast"
 require "webmock/rspec"
 
 RSpec.describe Flipper::Cloud, ".migrate" do
@@ -16,6 +17,11 @@ RSpec.describe Flipper::Cloud, ".migrate" do
     example.run
   ensure
     ENV["FLIPPER_CLOUD_URL"] = original
+  end
+
+  def decompress_request_body
+    raw = WebMock::RequestRegistry.instance.requested_signatures.hash.keys.last.body
+    JSON.parse(Flipper::Typecast.from_gzip(raw))
   end
 
   describe ".migrate" do
@@ -37,9 +43,21 @@ RSpec.describe Flipper::Cloud, ".migrate" do
       Flipper::Cloud.migrate(flipper, app_name: "MyApp")
 
       expect(stub).to have_been_requested
-      body = JSON.parse(WebMock::RequestRegistry.instance.requested_signatures.hash.keys.last.body)
+      body = decompress_request_body
       expect(body["metadata"]["app_name"]).to eq("MyApp")
       expect(body["export"]["version"]).to eq(1)
+      expect(body["export"]["features"]).to have_key("search")
+    end
+
+    it "sends gzip-compressed request body" do
+      stub = stub_request(:post, "http://localhost:5555/api/migrate")
+        .with(headers: {"content-encoding" => "gzip"})
+        .to_return(status: 200, body: '{"url":"http://localhost:5555/cloud/setup/abc"}')
+
+      Flipper::Cloud.migrate(flipper)
+
+      expect(stub).to have_been_requested
+      body = decompress_request_body
       expect(body["export"]["features"]).to have_key("search")
     end
 
@@ -107,13 +125,15 @@ RSpec.describe Flipper::Cloud, ".migrate" do
       expect(stub).to have_been_requested
     end
 
-    it "sends export contents as the body" do
+    it "sends gzip-compressed export contents as the body" do
       stub = stub_request(:post, "http://localhost:5555/adapter/import")
+        .with(headers: {"content-encoding" => "gzip"})
         .to_return(status: 204, body: "")
 
       Flipper::Cloud.push("test-token", flipper)
 
-      body = JSON.parse(WebMock::RequestRegistry.instance.requested_signatures.hash.keys.last.body)
+      expect(stub).to have_been_requested
+      body = decompress_request_body
       expect(body["version"]).to eq(1)
       expect(body["features"]).to have_key("search")
     end
