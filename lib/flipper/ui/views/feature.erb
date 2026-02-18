@@ -255,16 +255,24 @@
             <div class="row">
               <% unless @feature.boolean_value %>
                 <div class="col d-grid">
-                  <button type="submit" name="action" value="Enable" class="btn btn-outline-success"
-                    <% if Flipper::UI.configuration.confirm_fully_enable %>
-                      data-confirmation-prompt="Are you sure you want to fully enable this feature for everyone? Please enter the name of the feature to confirm it: <%= feature_name %>"
-                      data-confirmation-text="<%= feature_name %>"
-                    <% end %>
-                  >
-                    <span class="d-block" data-bs-toggle="tooltip" title="Enable for everyone">
-                      Fully Enable
+                  <% if Flipper::UI.configuration.fully_enable_disabled %>
+                    <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="<%= Flipper::UI.configuration.fully_enable_disabled_with %>">
+                      <button type="submit" name="action" value="Enable" class="btn btn-outline-success w-100" disabled style="pointer-events: none;">
+                        Fully Enable
+                      </button>
                     </span>
-                  </button>
+                  <% else %>
+                    <button type="submit" name="action" value="Enable" class="btn btn-outline-success"
+                      <% if Flipper::UI.configuration.confirm_fully_enable %>
+                        data-confirmation-prompt="Are you sure you want to fully enable this feature for everyone? Please enter the name of the feature to confirm it: <%= feature_name %>"
+                        data-confirmation-text="<%= feature_name %>"
+                      <% end %>
+                    >
+                      <span class="d-block" data-bs-toggle="tooltip" title="Enable for everyone">
+                        Fully Enable
+                      </span>
+                    </button>
+                  <% end %>
                 </div>
               <% end %>
 
