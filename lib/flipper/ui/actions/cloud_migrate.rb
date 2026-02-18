@@ -15,7 +15,9 @@ module Flipper
             header 'location', result.url
             halt [@code, @headers, ['']]
           else
-            redirect_to "/settings?error=#{Flipper::UI::Util.escape("Migration failed (HTTP #{result.code})")}"
+            message = "Migration failed (HTTP #{result.code})"
+            message << ": #{result.message}" if result.message
+            redirect_to "/settings?error=#{Flipper::UI::Util.escape(message)}"
           end
         end
       end

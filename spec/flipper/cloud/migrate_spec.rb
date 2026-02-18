@@ -53,8 +53,31 @@ RSpec.describe Flipper::Cloud, ".migrate" do
       expect(result.url).to be_nil
     end
 
+    it "includes error message from response body" do
+      stub_request(:post, "http://localhost:5555/api/migrate")
+        .to_return(status: 422, body: '{"error":"Invalid export format"}')
+
+      result = Flipper::Cloud.migrate(flipper)
+
+      expect(result.code).to eq(422)
+      expect(result.message).to eq("Invalid export format")
+    end
+
     it "uses FLIPPER_CLOUD_URL environment variable" do
       stub = stub_request(:post, "http://localhost:5555/api/migrate")
+        .to_return(status: 200, body: '{"url":"http://localhost:5555/cloud/setup/abc"}')
+
+      Flipper::Cloud.migrate(flipper)
+
+      expect(stub).to have_been_requested
+    end
+
+    it "sends content-type and accept headers" do
+      stub = stub_request(:post, "http://localhost:5555/api/migrate")
+        .with(headers: {
+          "content-type" => "application/json",
+          "accept" => "application/json",
+        })
         .to_return(status: 200, body: '{"url":"http://localhost:5555/cloud/setup/abc"}')
 
       Flipper::Cloud.migrate(flipper)
@@ -76,7 +99,7 @@ RSpec.describe Flipper::Cloud, ".migrate" do
 
     it "sends the token as a header" do
       stub = stub_request(:post, "http://localhost:5555/adapter/import")
-        .with(headers: {"Flipper-Cloud-Token" => "test-token"})
+        .with(headers: {"flipper-cloud-token" => "test-token"})
         .to_return(status: 204, body: "")
 
       Flipper::Cloud.push("test-token", flipper)
@@ -102,6 +125,16 @@ RSpec.describe Flipper::Cloud, ".migrate" do
       result = Flipper::Cloud.push("bad-token", flipper)
 
       expect(result.code).to eq(401)
+    end
+
+    it "includes error message from response body" do
+      stub_request(:post, "http://localhost:5555/adapter/import")
+        .to_return(status: 401, body: '{"error":"Invalid token"}')
+
+      result = Flipper::Cloud.push("bad-token", flipper)
+
+      expect(result.code).to eq(401)
+      expect(result.message).to eq("Invalid token")
     end
   end
 end

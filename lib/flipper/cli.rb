@@ -105,7 +105,9 @@ module Flipper
               ui.info result.url
               system("open", result.url)
             else
-              ui.error "Migration failed (HTTP #{result.code})"
+              message = "Migration failed (HTTP #{result.code})"
+              message << ": #{result.message}" if result.message
+              ui.error message
               exit 1
             end
           when 'push'
@@ -118,7 +120,9 @@ module Flipper
             if result.code == 204
               ui.info "Successfully pushed features to Flipper Cloud"
             else
-              ui.error "Push failed (HTTP #{result.code})"
+              message = "Push failed (HTTP #{result.code})"
+              message << ": #{result.message}" if result.message
+              ui.error message
               exit 1
             end
           else
