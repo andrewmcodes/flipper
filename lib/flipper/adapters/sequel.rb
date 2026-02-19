@@ -117,6 +117,7 @@ module Flipper
         features.each do |feature|
           result[feature.key] = result_for_feature(feature, grouped_db_gates[feature.key])
         end
+        result.default_proc = nil
         result
       end
 

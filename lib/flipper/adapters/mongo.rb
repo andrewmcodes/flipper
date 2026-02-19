@@ -129,7 +129,7 @@ module Flipper
         docs = find_many(features.map(&:key))
         result = {}
         features.each do |feature|
-          result[feature.key] = result_for_feature(feature, docs[feature.key])
+          result[feature.key] = result_for_feature(feature, docs.fetch(feature.key, {}))
         end
         result
       end
@@ -146,7 +146,7 @@ module Flipper
 
       def find_many(keys)
         docs = @collection.find(_id: { '$in' => keys }).to_a
-        result = Hash.new { |hash, key| hash[key] = {} }
+        result = {}
         docs.each do |doc|
           result[doc['_id']] = doc
         end
