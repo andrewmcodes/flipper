@@ -108,10 +108,6 @@ module Flipper
     Expression.build({ Time: value })
   end
 
-  def duration(scalar, unit = 'second')
-    Expression.build({ Duration: [scalar, unit] })
-  end
-
   def feature_enabled(name)
     Expression.build({ FeatureEnabled: name })
   end
