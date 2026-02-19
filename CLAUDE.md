@@ -69,6 +69,14 @@ The project is structured as multiple gems:
 **Memoization**: Automatic caching of feature checks within request/thread scope
 **Type Safety**: Strong typing system for actors, percentages, and other values
 
+### Serialization and HTTP
+
+Use `Flipper::Typecast` for JSON and gzip serialization instead of calling `JSON.generate`/`JSON.parse` or `Zlib` directly:
+- `Typecast.to_json(hash)` / `Typecast.from_json(string)` for JSON serialization
+- `Typecast.to_gzip(string)` / `Typecast.from_gzip(string)` for gzip compression
+
+For outbound HTTP requests, use `Flipper::Adapters::Http::Client` instead of raw `Net::HTTP`. It provides timeouts, retries (`max_retries`), SSL verification, and diagnostic headers (user-agent, client-language, client-platform, etc.). See `lib/flipper/cloud/migrate.rb` for an example.
+
 ### Testing
 
 Uses both RSpec (currently preferred for new tests) and Minitest. Shared adapter specs ensure consistency across all storage backends. Extensive testing across multiple Rails versions (5.0-8.0).

@@ -27,6 +27,7 @@ module Flipper
         @action_collection.add UI::Actions::Features
         @action_collection.add UI::Actions::Export
         @action_collection.add UI::Actions::Import
+        @action_collection.add UI::Actions::CloudMigrate
         @action_collection.add UI::Actions::Settings
 
         # Static Assets/Files

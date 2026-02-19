@@ -84,6 +84,57 @@ module Flipper
         end
       end
 
+      command 'export' do |c|
+        c.description = "Export features as JSON"
+        c.action do
+          export = Flipper.export(format: :json, version: 1)
+          ui.info export.contents
+        end
+      end
+
+      command 'cloud' do |c|
+        c.description = "Flipper Cloud commands"
+        c.action do |subcommand = nil, *args|
+          require 'flipper/cloud/migrate'
+
+          case subcommand
+          when 'migrate'
+            result = Flipper::Cloud.migrate(Flipper)
+            if result.url
+              ui.info "Migrating to Flipper Cloud..."
+              ui.info result.url
+              system("open", result.url)
+            else
+              message = "Migration failed (HTTP #{result.code})"
+              message << ": #{result.message}" if result.message
+              ui.error message
+              exit 1
+            end
+          when 'push'
+            token = args.first
+            unless token
+              ui.error "Usage: flipper cloud push <token>"
+              exit 1
+            end
+            result = Flipper::Cloud.push(token, Flipper)
+            if result.code == 204
+              ui.info "Successfully pushed features to Flipper Cloud"
+            else
+              message = "Push failed (HTTP #{result.code})"
+              message << ": #{result.message}" if result.message
+              ui.error message
+              exit 1
+            end
+          else
+            ui.info "Usage: flipper cloud <command>"
+            ui.info ""
+            ui.info "Commands:"
+            ui.info "  migrate  Migrate features to a new Flipper Cloud account"
+            ui.info "  push     Push features to an existing Flipper Cloud project"
+          end
+        end
+      end
+
       command 'help' do |c|
         c.load_environment = false
         c.action do |command = nil|

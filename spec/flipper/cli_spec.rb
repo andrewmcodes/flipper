@@ -147,6 +147,57 @@ RSpec.describe Flipper::CLI do
     it { should have_attributes(status: 1, stderr: /invalid option: --nope/) }
   end
 
+  describe "export" do
+    before do
+      Flipper.enable :search
+      Flipper.disable :analytics
+    end
+
+    it "outputs valid JSON export" do
+      expect(subject).to have_attributes(status: 0)
+      data = JSON.parse(subject.stdout)
+      expect(data["version"]).to eq(1)
+      expect(data["features"]).to have_key("search")
+      expect(data["features"]).to have_key("analytics")
+    end
+  end
+
+  describe "cloud" do
+    it "shows help when no subcommand given" do
+      expect(subject).to have_attributes(status: 0, stdout: /migrate/)
+      expect(subject.stdout).to match(/push/)
+    end
+  end
+
+  describe "cloud migrate" do
+    before do
+      Flipper.enable :search
+      require 'flipper/cloud/migrate'
+      allow(Flipper::Cloud).to receive(:migrate).and_return(
+        Flipper::Cloud::MigrateResult.new(code: 200, url: "https://www.flippercloud.io/cloud/setup/abc123")
+      )
+      allow(cli).to receive(:system)
+    end
+
+    it "prints the cloud URL" do
+      expect(subject).to have_attributes(status: 0, stdout: /flippercloud\.io/)
+    end
+  end
+
+  describe "cloud push test-token" do
+    before do
+      Flipper.enable :search
+      require 'flipper/cloud/migrate'
+      allow(Flipper::Cloud).to receive(:push).and_return(
+        Flipper::Cloud::MigrateResult.new(code: 204, url: nil)
+      )
+    end
+
+    it "prints success message" do
+      expect(subject).to have_attributes(status: 0, stdout: /Successfully pushed/)
+    end
+  end
+
   describe "show foo" do
     context "boolean" do
       before { Flipper.enable :foo }
