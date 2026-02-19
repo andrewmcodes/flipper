@@ -1,4 +1,3 @@
-require "json"
 require "flipper/adapters/http/client"
 require "flipper/typecast"
 
@@ -17,18 +16,18 @@ module Flipper
     def self.migrate(flipper = Flipper, app_name: nil)
       export = flipper.export(format: :json, version: 1)
       payload = {
-        export: JSON.parse(export.contents),
+        export: Typecast.from_json(export.contents),
         metadata: {app_name: app_name},
       }
 
       client = build_client("/api")
-      response = client.post("/migrate", Typecast.to_gzip(JSON.generate(payload)))
-      body = JSON.parse(response.body) rescue {}
+      response = client.post("/migrate", Typecast.to_gzip(Typecast.to_json(payload)))
+      body = Typecast.from_json(response.body) rescue nil
 
       MigrateResult.new(
         code: response.code.to_i,
-        url: body["url"],
-        message: body["error"],
+        url: body&.dig("url"),
+        message: body&.dig("error"),
       )
     end
 
@@ -45,12 +44,12 @@ module Flipper
         "flipper-cloud-token" => token,
       })
       response = client.post("/import", Typecast.to_gzip(export.contents))
-      body = JSON.parse(response.body) rescue {}
+      body = Typecast.from_json(response.body) rescue nil
 
       MigrateResult.new(
         code: response.code.to_i,
         url: nil,
-        message: body["error"],
+        message: body&.dig("error"),
       )
     end
 
