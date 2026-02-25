@@ -97,9 +97,10 @@ We also have a [free plan](https://www.flippercloud.io?utm_source=oss&utm_medium
 
 ## Releasing
 
-1. Update the version to be whatever it should be and commit.
-2. `script/release`
-3. Create a new [GitHub Release](https://github.com/flippercloud/flipper/releases/new)
+1. Update the version in `lib/flipper/version.rb` and commit.
+2. Tag and push: `git tag v1.x.x && git push origin v1.x.x`
+3. GitHub Actions builds and publishes all gems to RubyGems automatically.
+4. Edit and publish the draft [GitHub Release](https://github.com/flippercloud/flipper/releases).
 
 ## Brought To You By
 

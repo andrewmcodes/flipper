@@ -17,9 +17,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `script/console` - Start interactive console with Flipper loaded (uses Pry)
 - `script/server` - Start local UI server on port 9999 for testing web interface
 
-### Building and Releasing
-- `bundle exec rake build` - Build all gems into pkg/ directory
-- `bundle exec rake release` - Tag version, push to remote, and push gems (requires OTP)
+### Releasing
+1. Bump version in `lib/flipper/version.rb`, commit, and push to main
+2. Tag and push: `git tag v1.x.x && git push origin v1.x.x`
+3. GitHub Actions (`.github/workflows/release.yml`) builds and publishes all 12 gems via RubyGems trusted publishing, then creates a draft GitHub Release
+4. Edit and publish the draft release at https://github.com/flippercloud/flipper/releases
+
+- `bundle exec rake build` - Build all gems locally into pkg/ directory
+- `script/release` - Manual fallback for local releases (prompts for OTP)
 
 ## Architecture Overview
 
