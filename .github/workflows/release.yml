@@ -8,7 +8,6 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    environment: Rubygems
     permissions:
       id-token: write   # RubyGems trusted publishing (OIDC)
       contents: write   # Create GitHub Releases
