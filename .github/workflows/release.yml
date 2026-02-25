@@ -31,18 +31,19 @@ jobs:
       - name: Configure RubyGems credentials
         uses: rubygems/configure-rubygems-credentials@v1.0.0
 
-      - name: Publish core flipper gem
-        run: gem push pkg/flipper-[0-9]*.gem
-
-      - name: Publish all other gems
+      - name: Publish all gems
         run: |
+          # Push core gem first since other gems depend on it
+          echo "Pushing flipper core gem..."
+          gem push pkg/flipper-[0-9]*.gem || echo "Core gem already pushed, continuing..."
+
           for gem_file in pkg/flipper-*.gem; do
             basename="$(basename "$gem_file")"
             if [[ "$basename" =~ ^flipper-[0-9] ]]; then
               continue
             fi
             echo "Pushing $basename..."
-            gem push "$gem_file"
+            gem push "$gem_file" || echo "Failed to push $basename, continuing..."
           done
 
       - name: Create draft GitHub Release
