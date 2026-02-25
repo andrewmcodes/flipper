@@ -255,8 +255,8 @@
             <div class="row">
               <% unless @feature.boolean_value %>
                 <div class="col d-grid">
-                  <% if Flipper::UI.configuration.fully_enable_disabled %>
-                    <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="<%= Flipper::UI.configuration.fully_enable_disabled_with %>">
+                  <% if Flipper::UI.configuration.disable_fully_enable %>
+                    <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="<%= Flipper::UI.configuration.disable_fully_enable_message %>">
                       <button type="submit" name="action" value="Enable" class="btn btn-outline-success w-100" disabled style="pointer-events: none;">
                         Fully Enable
                       </button>

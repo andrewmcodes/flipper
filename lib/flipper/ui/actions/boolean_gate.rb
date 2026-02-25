@@ -16,7 +16,7 @@ module Flipper
           @feature = Decorators::Feature.new(feature)
 
           if params['action'] == 'Enable'
-            if Flipper::UI.configuration.fully_enable_disabled
+            if Flipper::UI.configuration.disable_fully_enable
               status 403
               halt view_response(:fully_enable_disabled)
             end

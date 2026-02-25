@@ -65,16 +65,9 @@ RSpec.describe Flipper::UI::Actions::BooleanGate do
       end
     end
 
-    context 'when fully_enable_disabled is true' do
-      around do |example|
-        begin
-          @original_fully_enable_disabled = Flipper::UI.configuration.fully_enable_disabled
-          Flipper::UI.configuration.fully_enable_disabled = true
-          example.run
-        ensure
-          Flipper::UI.configuration.fully_enable_disabled = @original_fully_enable_disabled
-        end
-      end
+    context 'when disable_fully_enable is true' do
+      before { Flipper::UI.configuration.disable_fully_enable = true }
+      after { Flipper::UI.configuration.disable_fully_enable = nil }
 
       context 'with enable' do
         before do
@@ -92,8 +85,8 @@ RSpec.describe Flipper::UI::Actions::BooleanGate do
           expect(last_response.status).to be(403)
         end
 
-        it 'renders fully enable disabled template' do
-          expect(last_response.body).to include('Fully enabling features from the UI is disabled')
+        it 'renders the default disabled message' do
+          expect(last_response.body).to include('Fully enabling features via the UI is disabled.')
         end
       end
 
@@ -113,6 +106,20 @@ RSpec.describe Flipper::UI::Actions::BooleanGate do
           expect(last_response.status).to be(302)
           expect(last_response.headers['location']).to eq('/features/search')
         end
+      end
+    end
+
+    context 'when disable_fully_enable is a custom message' do
+      before { Flipper::UI.configuration.disable_fully_enable = "Use deploy pipeline instead." }
+      after { Flipper::UI.configuration.disable_fully_enable = nil }
+
+      it 'renders the custom message on 403' do
+        flipper.disable :search
+        post 'features/search/boolean',
+             { 'action' => 'Enable', 'authenticity_token' => token },
+             'rack.session' => session
+        expect(last_response.status).to be(403)
+        expect(last_response.body).to include('Use deploy pipeline instead.')
       end
     end
   end

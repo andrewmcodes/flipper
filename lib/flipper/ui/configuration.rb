@@ -77,14 +77,19 @@ module Flipper
       # Default is false.
       attr_accessor :confirm_disable
 
-      # Public: If set to true, the Fully Enable button will be disabled in the
-      # UI, preventing users from fully enabling features. Defaults to false.
-      attr_accessor :fully_enable_disabled
-
-      # Public: The tooltip text shown on the disabled Fully Enable button when
-      # fully_enable_disabled is true. Defaults to "Fully enabling features via
-      # the UI is disabled."
-      attr_accessor :fully_enable_disabled_with
+      # Public: Set to disable the Fully Enable button in the UI, preventing
+      # users from fully enabling features via the web interface. Set to true
+      # for a default message, or a string for a custom message. Defaults to nil.
+      #
+      # Note: This only affects the UI. If flipper-api is mounted, full enable
+      # is still possible via the API.
+      #
+      # Examples:
+      #
+      #   config.disable_fully_enable = true
+      #   config.disable_fully_enable = "Use deploy pipeline instead."
+      #
+      attr_accessor :disable_fully_enable
 
       VALID_BANNER_CLASS_VALUES = %w(
         danger
@@ -115,8 +120,7 @@ module Flipper
         @actors_separator = ','
         @confirm_fully_enable = false
         @confirm_disable = true
-        @fully_enable_disabled = false
-        @fully_enable_disabled_with = "Fully enabling features via the UI is disabled."
+        @disable_fully_enable = nil
         @read_only = false
         @nav_items = [
           { title: "Features", href: "features" },
@@ -130,6 +134,16 @@ module Flipper
 
       def show_feature_description_in_list?
         using_descriptions? && @show_feature_description_in_list
+      end
+
+      DEFAULT_DISABLE_FULLY_ENABLE_MESSAGE = "Fully enabling features via the UI is disabled."
+
+      def disable_fully_enable_message
+        if @disable_fully_enable.is_a?(String)
+          @disable_fully_enable
+        else
+          DEFAULT_DISABLE_FULLY_ENABLE_MESSAGE
+        end
       end
 
       def banner_class=(value)

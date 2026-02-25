@@ -146,25 +146,31 @@ RSpec.describe Flipper::UI::Configuration do
     end
   end
 
-  describe "#fully_enable_disabled" do
-    it "has default value" do
-      expect(configuration.fully_enable_disabled).to eq(false)
+  describe "#disable_fully_enable" do
+    it "defaults to nil" do
+      expect(configuration.disable_fully_enable).to be_nil
     end
 
-    it "can be updated" do
-      configuration.fully_enable_disabled = true
-      expect(configuration.fully_enable_disabled).to eq(true)
+    it "can be set to true" do
+      configuration.disable_fully_enable = true
+      expect(configuration.disable_fully_enable).to eq(true)
+    end
+
+    it "can be set to a custom message" do
+      configuration.disable_fully_enable = "Use deploy pipeline instead."
+      expect(configuration.disable_fully_enable).to eq("Use deploy pipeline instead.")
     end
   end
 
-  describe "#fully_enable_disabled_with" do
-    it "has default value" do
-      expect(configuration.fully_enable_disabled_with).to eq("Fully enabling features via the UI is disabled.")
+  describe "#disable_fully_enable_message" do
+    it "returns default message when set to true" do
+      configuration.disable_fully_enable = true
+      expect(configuration.disable_fully_enable_message).to eq("Fully enabling features via the UI is disabled.")
     end
 
-    it "can be updated" do
-      configuration.fully_enable_disabled_with = "Use deploy pipeline instead."
-      expect(configuration.fully_enable_disabled_with).to eq("Use deploy pipeline instead.")
+    it "returns custom message when set to a string" do
+      configuration.disable_fully_enable = "Use deploy pipeline instead."
+      expect(configuration.disable_fully_enable_message).to eq("Use deploy pipeline instead.")
     end
   end
 
