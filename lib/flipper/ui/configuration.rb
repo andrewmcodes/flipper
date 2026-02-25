@@ -77,6 +77,15 @@ module Flipper
       # Default is false.
       attr_accessor :confirm_disable
 
+      # Public: If set to true, the Fully Enable button will be disabled in the
+      # UI, preventing users from fully enabling features. Defaults to false.
+      attr_accessor :fully_enable_disabled
+
+      # Public: The tooltip text shown on the disabled Fully Enable button when
+      # fully_enable_disabled is true. Defaults to "Fully enabling features via
+      # the UI is disabled."
+      attr_accessor :fully_enable_disabled_with
+
       VALID_BANNER_CLASS_VALUES = %w(
         danger
         dark
@@ -106,6 +115,8 @@ module Flipper
         @actors_separator = ','
         @confirm_fully_enable = false
         @confirm_disable = true
+        @fully_enable_disabled = false
+        @fully_enable_disabled_with = "Fully enabling features via the UI is disabled."
         @read_only = false
         @nav_items = [
           { title: "Features", href: "features" },

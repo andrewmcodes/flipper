@@ -146,6 +146,28 @@ RSpec.describe Flipper::UI::Configuration do
     end
   end
 
+  describe "#fully_enable_disabled" do
+    it "has default value" do
+      expect(configuration.fully_enable_disabled).to eq(false)
+    end
+
+    it "can be updated" do
+      configuration.fully_enable_disabled = true
+      expect(configuration.fully_enable_disabled).to eq(true)
+    end
+  end
+
+  describe "#fully_enable_disabled_with" do
+    it "has default value" do
+      expect(configuration.fully_enable_disabled_with).to eq("Fully enabling features via the UI is disabled.")
+    end
+
+    it "can be updated" do
+      configuration.fully_enable_disabled_with = "Use deploy pipeline instead."
+      expect(configuration.fully_enable_disabled_with).to eq("Use deploy pipeline instead.")
+    end
+  end
+
   describe "#show_feature_description_in_list" do
     it "has default value" do
       expect(configuration.show_feature_description_in_list).to eq(false)
