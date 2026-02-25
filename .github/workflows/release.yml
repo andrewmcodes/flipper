@@ -29,9 +29,7 @@ jobs:
           ls -la pkg/
 
       - name: Configure RubyGems credentials
-        uses: rubygems/configure-rubygems-credentials@main
-        with:
-          audience: 'https://rubygems.org'
+        uses: rubygems/configure-rubygems-credentials@v1.0.0
 
       - name: Publish core flipper gem
         run: gem push pkg/flipper-[0-9]*.gem
