@@ -18,7 +18,10 @@ module Flipper
     end
 
     def self.reset
-      instances.each {|_, instance| instance.stop }.clear
+      instances.each do |_, instance|
+        instance.stop
+        instance.thread&.join(1)
+      end.clear
     end
 
     MINIMUM_POLL_INTERVAL = 10
@@ -116,6 +119,7 @@ module Flipper
       begin
         return if thread_alive?
         @thread = Thread.new { run }
+        @thread&.report_on_exception = false
         @instrumenter.instrument("poller.#{InstrumentationNamespace}", {
           operation: :thread_start,
         })
