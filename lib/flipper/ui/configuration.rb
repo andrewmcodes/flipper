@@ -77,6 +77,20 @@ module Flipper
       # Default is false.
       attr_accessor :confirm_disable
 
+      # Public: Set to disable the Fully Enable button in the UI, preventing
+      # users from fully enabling features via the web interface. Set to true
+      # for a default message, or a string for a custom message. Defaults to nil.
+      #
+      # Note: This only affects the UI. If flipper-api is mounted, full enable
+      # is still possible via the API.
+      #
+      # Examples:
+      #
+      #   config.disable_fully_enable = true
+      #   config.disable_fully_enable = "Use deploy pipeline instead."
+      #
+      attr_accessor :disable_fully_enable
+
       VALID_BANNER_CLASS_VALUES = %w(
         danger
         dark
@@ -90,6 +104,7 @@ module Flipper
 
       DEFAULT_DESCRIPTIONS_SOURCE = ->(_keys) { {} }
       DEFAULT_ACTOR_NAMES_SOURCE = ->(_keys) { {} }
+      DEFAULT_DISABLE_FULLY_ENABLE_MESSAGE = "Fully enabling features via the UI is disabled."
 
       def initialize
         @delete = Option.new("Danger Zone", "Deleting a feature removes it from the list of features and disables it for everyone.")
@@ -106,6 +121,7 @@ module Flipper
         @actors_separator = ','
         @confirm_fully_enable = false
         @confirm_disable = true
+        @disable_fully_enable = nil
         @read_only = false
         @nav_items = [
           { title: "Features", href: "features" },
@@ -119,6 +135,14 @@ module Flipper
 
       def show_feature_description_in_list?
         using_descriptions? && @show_feature_description_in_list
+      end
+
+      def disable_fully_enable_message
+        if @disable_fully_enable.is_a?(String)
+          @disable_fully_enable
+        else
+          DEFAULT_DISABLE_FULLY_ENABLE_MESSAGE
+        end
       end
 
       def banner_class=(value)

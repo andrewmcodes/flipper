@@ -125,6 +125,32 @@ RSpec.describe Flipper::UI::Actions::Feature do
       end
     end
 
+    context "when disable_fully_enable is true" do
+      before { Flipper::UI.configuration.disable_fully_enable = true }
+      after { Flipper::UI.configuration.disable_fully_enable = nil }
+
+      it 'renders the Fully Enable button as disabled' do
+        get '/features/search'
+        expect(last_response.body).to include('Fully Enable')
+        expect(last_response.body).to match(/disabled\s*>/)
+      end
+
+      it 'shows the default disabled tooltip' do
+        get '/features/search'
+        expect(last_response.body).to include('Fully enabling features via the UI is disabled.')
+      end
+    end
+
+    context "when disable_fully_enable is a custom message" do
+      before { Flipper::UI.configuration.disable_fully_enable = "Use deploy pipeline instead." }
+      after { Flipper::UI.configuration.disable_fully_enable = nil }
+
+      it 'shows custom disabled tooltip' do
+        get '/features/search'
+        expect(last_response.body).to include('Use deploy pipeline instead.')
+      end
+    end
+
     context 'custom actor names' do
       before do
         actor = Flipper::Actor.new('some_actor_name')
