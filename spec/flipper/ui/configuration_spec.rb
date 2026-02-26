@@ -156,6 +156,11 @@ RSpec.describe Flipper::UI::Configuration do
       expect(configuration.disable_fully_enable).to eq(true)
     end
 
+    it "can be set to false" do
+      configuration.disable_fully_enable = false
+      expect(configuration.disable_fully_enable).to eq(false)
+    end
+
     it "can be set to a custom message" do
       configuration.disable_fully_enable = "Use deploy pipeline instead."
       expect(configuration.disable_fully_enable).to eq("Use deploy pipeline instead.")

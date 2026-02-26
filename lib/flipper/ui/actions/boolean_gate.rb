@@ -18,7 +18,7 @@ module Flipper
           if params['action'] == 'Enable'
             if Flipper::UI.configuration.disable_fully_enable
               status 403
-              halt view_response(:fully_enable_disabled)
+              halt view_response(:disable_fully_enable)
             end
             feature.enable
           else

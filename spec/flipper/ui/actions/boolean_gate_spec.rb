@@ -65,6 +65,19 @@ RSpec.describe Flipper::UI::Actions::BooleanGate do
       end
     end
 
+    context 'when disable_fully_enable is false' do
+      before { Flipper::UI.configuration.disable_fully_enable = false }
+      after { Flipper::UI.configuration.disable_fully_enable = nil }
+
+      it 'allows enabling the feature' do
+        flipper.disable :search
+        post 'features/search/boolean',
+             { 'action' => 'Enable', 'authenticity_token' => token },
+             'rack.session' => session
+        expect(flipper.enabled?(:search)).to be(true)
+      end
+    end
+
     context 'when disable_fully_enable is true' do
       before { Flipper::UI.configuration.disable_fully_enable = true }
       after { Flipper::UI.configuration.disable_fully_enable = nil }
