@@ -39,6 +39,13 @@ RSpec.configure do |config|
     Flipper.configuration = nil
   end
 
+  config.after(:example) do
+    # Stop any pollers started during the test BEFORE WebMock clears stubs
+    # in its own after hook (RSpec runs after hooks in reverse registration
+    # order, so ours runs first since webmock/rspec was required before this).
+    Flipper::Poller.reset if defined?(Flipper::Poller)
+  end
+
   config.disable_monkey_patching!
 
   config.filter_run focus: true
